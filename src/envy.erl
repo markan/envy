@@ -30,22 +30,21 @@
 -include_lib("eunit/include/eunit.hrl").
 
 
-get(Section, Item, any) ->
-    get(Section, Item, fun(_) -> true end);
-get(Section, Item, integer) ->
-    get(Section, Item, fun is_integer/1);
-get(Section, Item, bool) ->
-    get(Section, Item, fun is_boolean/1);
-get(Section, Item, string) ->
-    get(Section, Item, fun is_list/1);
+fun_ex(any) -> fun(_) -> true end;
+fun_ex(integer) -> fun is_integer/1;
+fun_ex(bool) -> fun is_boolean/1;
+fun_ex(string) -> fun is_list/1;
+fun_ex(F) when is_function(F) -> F.
+
 get(Section, Item, TypeCheck) ->
+    TypeCheckF = fun_ex(TypeCheck),
     case application:get(Section, Item) of
         {ok, Value} ->
             case TypeCheck(Value) of
                 true -> Value;
                 Error ->
                     lager:error("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
-                                           [Section, Item, TypeCheck, Value, Error]),
+                                           [Section, Item, TypeCheckF, Value, Error]),
                     error(config_bad_item)
             end;
         undefined ->
@@ -53,23 +52,15 @@ get(Section, Item, TypeCheck) ->
             error(config_missing_item)
     end.
 
-
-get(Section, Item, Default, any) ->
-    get(Section, Item, Default, fun(_) -> true end);
-get(Section, Item, Default, integer) ->
-    get(Section, Item, Default, fun is_integer/1);
-get(Section, Item, Default, bool) ->
-    get(Section, Item, Default, fun is_boolean/1);
-get(Section, Item, Default, string) ->
-    get(Section, Item, Default, fun is_list/1);
 get(Section, Item, Default, TypeCheck) ->
+    TypeCheckF = fun_ex(TypeCheck),
     case application:get(Section, Item) of
         {ok, Value} ->
             case TypeCheck(Value) of
                 true -> Value;
                 Error ->
                     lager:error("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
-                                           [Section, Item, TypeCheck, Value, Error]),
+                                           [Section, Item, TypeCheckF, Value, Error]),
                     error(config_bad_item)
             end;
         undefined ->
