@@ -29,13 +29,17 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+-type envy_type_validator() :: fun( (any()) -> boolean()).
+-type envy_type_constraint() :: envy_type_validator | atom().
 
+-spec fun_ex('any' | 'bool' | 'integer' | 'string' | envy_type_validator()) -> fun().
 fun_ex(any) -> fun(_) -> true end;
 fun_ex(integer) -> fun is_integer/1;
 fun_ex(bool) -> fun is_boolean/1;
 fun_ex(string) -> fun is_list/1;
 fun_ex(F) when is_function(F) -> F.
 
+-spec get(atom(), atom(), envy_type_constraint() ) -> any().
 get(Section, Item, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
     case application:get(Section, Item) of
@@ -52,6 +56,7 @@ get(Section, Item, TypeCheck) ->
             error(config_missing_item)
     end.
 
+-spec get(atom(), atom(), any(), envy_type_constraint() ) -> any().
 get(Section, Item, Default, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
     case application:get(Section, Item) of
