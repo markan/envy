@@ -42,9 +42,9 @@ fun_ex(F) when is_function(F) -> F.
 -spec get(atom(), atom(), envy_type_constraint() ) -> any().
 get(Section, Item, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
-    case application:get(Section, Item) of
+    case application:get_env(Section, Item) of
         {ok, Value} ->
-            case TypeCheck(Value) of
+            case TypeCheckF(Value) of
                 true -> Value;
                 Error ->
                     error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
@@ -52,16 +52,16 @@ get(Section, Item, TypeCheck) ->
                     error(config_bad_item)
             end;
         undefined ->
-            error_logger:error_msg("Bad config item for ~p ~p ", [Section, Item]),
+            error_logger:error_msg("Missing config item for ~p ~p ", [Section, Item]),
             error(config_missing_item)
     end.
 
 -spec get(atom(), atom(), any(), envy_type_constraint() ) -> any().
 get(Section, Item, Default, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
-    case application:get(Section, Item) of
+    case application:get_env(Section, Item) of
         {ok, Value} ->
-            case TypeCheck(Value) of
+            case TypeCheckF(Value) of
                 true -> Value;
                 Error ->
                     error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
