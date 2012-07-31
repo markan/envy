@@ -34,9 +34,9 @@ plt:
 dialyze:
 	dialyzer --src -Wunmatched_returns -Werror_handling -Wrace_conditions -r src -I deps
 
-#dialyzer:
-#	@rm -rf .eunit
-# @dialyzer -Wrace_conditions -Wunderspecs -r apps --src
+dialyzer:
+	@rm -rf .eunit
+	@dialyzer -Wrace_conditions -Wunderspecs -r src --src
 
 $(DEPS):
 	$(REBAR) get-deps
