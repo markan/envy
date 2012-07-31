@@ -50,12 +50,12 @@ get(Section, Item, TypeCheck) ->
             case TypeCheckF(Value) of
                 true -> Value;
                 Error ->
-                    error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
+                    error_logger:error_msg("Bad typecheck for config item for '~p' '~p' (~p(~p) -> ~p)~n",
                                            [Section, Item, TypeCheck, Value, Error]),
-                    error(config_bad_item)
+                    error(config_bad_type)
             end;
         undefined ->
-            error_logger:error_msg("Missing config item for ~p ~p ", [Section, Item]),
+            error_logger:error_msg("Missing config item for '~p' '~p'~n", [Section, Item]),
             error(config_missing_item)
     end.
 
@@ -67,9 +67,9 @@ get(Section, Item, Default, TypeCheck) ->
             case TypeCheckF(Value) of
                 true -> Value;
                 Error ->
-                    error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
+                    error_logger:error_msg("Bad typecheck for config item for '~p' '~p' (~p(~p) -> ~p)~n",
                                            [Section, Item, TypeCheck, Value, Error]),
-                    error(config_bad_item)
+                    error(config_bad_type)
             end;
         undefined ->
             Default
