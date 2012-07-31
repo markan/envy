@@ -52,7 +52,7 @@ get(Section, Item, TypeCheck) ->
                     error(config_bad_item)
             end;
         undefined ->
-            lager:error("Bad config item for ~p ~p ", [Section, Item]),
+            error_logger:error_msg("Bad config item for ~p ~p ", [Section, Item]),
             error(config_missing_item)
     end.
 
