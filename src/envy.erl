@@ -48,7 +48,7 @@ get(Section, Item, TypeCheck) ->
                 true -> Value;
                 Error ->
                     error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
-                                           [Section, Item, TypeCheckF, Value, Error]),
+                                           [Section, Item, TypeCheck, Value, Error]),
                     error(config_bad_item)
             end;
         undefined ->
@@ -65,7 +65,7 @@ get(Section, Item, Default, TypeCheck) ->
                 true -> Value;
                 Error ->
                     error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
-                                           [Section, Item, TypeCheckF, Value, Error]),
+                                           [Section, Item, TypeCheck, Value, Error]),
                     error(config_bad_item)
             end;
         undefined ->
