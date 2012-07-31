@@ -43,7 +43,7 @@ get(Section, Item, TypeCheck) ->
             case TypeCheck(Value) of
                 true -> Value;
                 Error ->
-                    lager:error("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
+                    error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
                                            [Section, Item, TypeCheckF, Value, Error]),
                     error(config_bad_item)
             end;
@@ -59,7 +59,7 @@ get(Section, Item, Default, TypeCheck) ->
             case TypeCheck(Value) of
                 true -> Value;
                 Error ->
-                    lager:error("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
+                    error_logger:error_msg("Bad typecheck for config item for ~p ~p (~p(~p) -> ~p)",
                                            [Section, Item, TypeCheckF, Value, Error]),
                     error(config_bad_item)
             end;
