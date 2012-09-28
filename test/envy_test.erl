@@ -18,7 +18,7 @@
 %% under the License.
 %%
 %% @author Mark Anderson <mark@opscode.com>
-%% @copyright 2012 Opscode Inc
+%% @copyright 2012 Mark Anderson
 
 -module(envy_test).
 
@@ -30,6 +30,7 @@ get_simple_test_() ->
     {foreach,
      fun() ->
              application:set_env(testing, ival, 1),
+             application:set_env(testing, aval, an_atom),
              application:set_env(testing, bval, true),
              application:set_env(testing, sval, "foo"),
              application:set_env(testing, binaryval, <<"bar">>),
@@ -65,3 +66,47 @@ get_simple_test_() ->
        end
       }
      ]}.
+
+
+matrix_test_() ->
+    M =  mk_test_matrix(),
+    ?debugVal(M),
+    Types = lists:usort(lists:flatten([ TypeList || {_, TypeList} <- M])),
+    ?debugVal(Types),
+    lists:flatten([mk_test(TypeName, Item, ValidTypes) || TypeName <-Types,
+                                                          {Item, ValidTypes} <- M]).
+
+mk_test(TypeName, Item, ValidTypes) ->
+    case lists:member(TypeName, ValidTypes) of
+        true ->
+            mk_pass_test(TypeName, Item);
+        false ->
+            mk_fail_test(TypeName, Item)
+    end.
+
+mk_pass_test(TypeName, Item) ->
+    Desc = iolist_to_binary(io_lib:format("Accepts ~w when type is ~s", [Item, TypeName])),
+    Fun = fun() ->
+                  application:set_env(testing, testval, Item),
+                  ?assertEqual(Item, envy:get(testing, testval, TypeName))
+          end,
+    {Desc, Fun}.
+
+mk_fail_test(TypeName, Item) ->
+    Desc = iolist_to_binary(io_lib:format("Rejects ~w when type is ~s", [Item, TypeName])),
+    Fun = fun() ->
+                  application:set_env(testing, testval, Item),
+                  ?assertError(config_bad_type, envy:get(testing, testval, TypeName))
+          end,
+    {Desc, Fun}.
+
+mk_test_matrix() ->
+    [{an_atom, [atom]},
+     {'2_be_another_atom', [atom]},
+     {0, [int, integer, number]},
+     {1, [int, integer, number]},
+     {2.0, [float, number]},
+     {<<"">>, [binary]},
+     {<<"another_binary">>, [binary]},
+     {"", [string]},
+     {"another string", [string]}].
