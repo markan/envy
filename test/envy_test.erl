@@ -29,12 +29,15 @@
 get_simple_test_() ->
     {foreach,
      fun() ->
+
              application:set_env(testing, ival, 1),
              application:set_env(testing, aval, an_atom),
              application:set_env(testing, bval, true),
              application:set_env(testing, sval, "foo"),
              application:set_env(testing, binaryval, <<"bar">>),
              application:set_env(testing, invalid, {junk}),
+             application:set_env(testing, nival, -1),
+             application:set_env(testing, zival, 0),
              ok
      end,
      fun(_) ->
@@ -55,6 +58,15 @@ get_simple_test_() ->
                ?assertError(config_bad_type, envy:get(testing, sval, integer))
        end
       },
+      {"positive_integer test passes",
+       ?_test(?assertEqual(1, envy:get(testing, ival, positive_integer)))
+       },
+      {"positive_integer type fails on negative value",
+       ?_test(?assertError(config_bad_type, envy:get(testing, nival, positive_integer)))
+       },
+      {"positive_integer type fails on zero value",
+       ?_test(?assertError(config_bad_type, envy:get(testing, zival, positive_integer)))
+       },
       {"bool test passes",
        fun() ->
                ?assertEqual(true, envy:get(testing, bval, boolean))
