@@ -32,7 +32,7 @@
 -type envy_type_validator() :: fun( (any()) -> boolean()).
 -type envy_type_constraint() :: envy_type_validator | atom().
 
--spec fun_ex('any' | 'atom' | 'boolean' | 'bool' | 'float' | 'integer' | 'int' | 'number' | 'string' | envy_type_validator()) -> fun().
+-spec fun_ex('any' | 'atom' | 'boolean' | 'bool' | 'float' | 'integer' | 'int' | 'positive_integer' | 'number' | 'string' | envy_type_validator()) -> fun().
 fun_ex(any) -> fun(_) -> true end;
 fun_ex(atom) -> fun is_atom/1;
 fun_ex(binary) -> fun is_binary/1;
@@ -41,6 +41,7 @@ fun_ex(boolean) -> fun is_boolean/1;
 fun_ex(float) -> fun is_float/1;
 fun_ex(int) -> fun is_integer/1;
 fun_ex(integer) -> fun is_integer/1;
+fun_ex(positive_integer) -> fun(Val) -> is_integer(Val) andalso Val > 0 end;
 fun_ex(number) -> fun is_number/1;
 fun_ex(string) -> fun is_list/1;
 fun_ex(F) when is_function(F) -> F.
