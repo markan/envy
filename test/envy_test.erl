@@ -82,6 +82,12 @@ get_simple_test_() ->
        },
       {"non_neg_integer type fails on negative value",
        ?_test(?assertError(config_bad_type, envy:get(testing, nival, non_neg_integer)))
+       },
+      {"composite test passes if one matches",
+       ?_test(?assertEqual(0, envy:get(testing, zival, [pos_integer, non_neg_integer])))
+       },
+      {"composite test fails if all fail",
+       ?_test(?assertError(config_bad_type, envy:get(testing, nival, [pos_integer, non_neg_integer])))
        }
      ]}.
 
