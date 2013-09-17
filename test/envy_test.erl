@@ -34,6 +34,7 @@ get_simple_test_() ->
              application:set_env(testing, aval, an_atom),
              application:set_env(testing, bval, true),
              application:set_env(testing, sval, "foo"),
+             application:set_env(testing, lval, [foo, bar, baz]),
              application:set_env(testing, binaryval, <<"bar">>),
              application:set_env(testing, invalid, {junk}),
              application:set_env(testing, nival, -1),
@@ -55,6 +56,9 @@ get_simple_test_() ->
       {"positive_integer test passes",
        ?_test(?assertEqual(1, envy:get(testing, ival, positive_integer)))
        },
+      {"pos_integer alias test passes",
+       ?_test(?assertEqual(1, envy:get(testing, ival, pos_integer)))
+        },
       {"positive_integer type fails on negative value",
        ?_test(?assertError(config_bad_type, envy:get(testing, nival, positive_integer)))
        },
@@ -66,7 +70,13 @@ get_simple_test_() ->
       },
       {"bool type fails passes",
        ?_test(?assertError(config_bad_type, envy:get(testing, sval, boolean)))
-      }
+      },
+      {"list type fails on non-list",
+       ?_test(?assertError(config_bad_type, envy:get(testing, aval, list)))
+       },
+      {"list test passes",
+       ?_test(?assertEqual([foo, bar, baz], envy:get(testing, lval, list)))
+       }
      ]}.
 
 
