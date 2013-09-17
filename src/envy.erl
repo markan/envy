@@ -32,7 +32,7 @@
 -type envy_type_validator() :: fun( (any()) -> boolean()).
 -type envy_type_constraint() :: envy_type_validator | atom().
 
--spec fun_ex('any' | 'atom' | 'boolean' | 'bool' | 'float' | 'integer' | 'int' | 'non_neg_integer' | 'pos_integer' |  'positive_integer' | 'number' | 'string' | 'list' | envy_type_validator()) -> fun().
+-spec fun_ex('any' | 'atom' | 'boolean' | 'bool' | 'float' | 'integer' | 'int' | 'non_neg_integer' | 'pos_integer' |  'positive_integer' | 'number' | 'string' | 'list' | list() | envy_type_validator()) -> fun().
 fun_ex(any) -> fun(_) -> true end;
 fun_ex(atom) -> fun is_atom/1;
 fun_ex(binary) -> fun is_binary/1;
@@ -45,6 +45,11 @@ fun_ex(pos_integer) -> fun_ex(positive_integer);
 fun_ex(positive_integer) -> fun(Val) -> is_integer(Val) andalso Val > 0 end;
 fun_ex(non_neg_integer) -> fun(Val) -> is_integer(Val) andalso Val >= 0 end;
 fun_ex(number) -> fun is_number/1;
+fun_ex(List) when is_list(List) ->
+    fun(Val) ->
+            lists:any(fun(FunEx) -> FunEx(Val) end,
+                      [fun_ex(ListEntry) || ListEntry <- List])
+    end;
 fun_ex(list) -> fun_ex(string);
 fun_ex(string) -> fun is_list/1;
 fun_ex(F) when is_function(F) -> F.
