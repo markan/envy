@@ -76,6 +76,12 @@ get_simple_test_() ->
        },
       {"list test passes",
        ?_test(?assertEqual([foo, bar, baz], envy:get(testing, lval, list)))
+       },
+      {"non_neg_integer test passes",
+       ?_test(?assertEqual(0, envy:get(testing, zival, non_neg_integer)))
+       },
+      {"non_neg_integer type fails on negative value",
+       ?_test(?assertError(config_bad_type, envy:get(testing, nival, non_neg_integer)))
        }
      ]}.
 
