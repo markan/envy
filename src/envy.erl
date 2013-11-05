@@ -30,9 +30,23 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -type envy_type_validator() :: fun( (any()) -> boolean()).
--type envy_type_constraint() :: envy_type_validator | atom().
+-type envy_type_constraint() :: envy_type_validator() |
+                                'any' |
+                                'atom' |
+                                'binary' |
+                                'bool' |
+                                'boolean' |
+                                'float' |
+                                'int' |
+                                'integer' |
+                                'list' |
+                                'non_neg_integer' |
+                                'number' |
+                                'pos_integer' |
+                                'positive_integer' |
+                                'string'.
 
--spec fun_ex('any' | 'atom' | 'boolean' | 'bool' | 'float' | 'integer' | 'int' | 'non_neg_integer' | 'pos_integer' |  'positive_integer' | 'number' | 'string' | 'list' | list() | 'binary' | envy_type_validator()) -> fun().
+-spec fun_ex(envy_type_constraint() | nonempty_list(envy_type_constraint())) -> envy_type_validator().
 fun_ex(any) -> fun(_) -> true end;
 fun_ex(atom) -> fun is_atom/1;
 fun_ex(binary) -> fun is_binary/1;
