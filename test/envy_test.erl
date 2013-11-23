@@ -18,7 +18,7 @@
 %% under the License.
 %%
 %% @author Mark Anderson <mark@opscode.com>
-%% @copyright 2012 Mark Anderson
+%% @copyright 2012-2013 Mark Anderson
 
 -module(envy_test).
 
@@ -94,9 +94,7 @@ get_simple_test_() ->
 
 matrix_test_() ->
     M =  mk_test_matrix(),
-    ?debugVal(M),
     Types = lists:usort(lists:flatten([ TypeList || {_, TypeList} <- M])),
-    ?debugVal(Types),
     lists:flatten([mk_test(TypeName, Item, ValidTypes) || TypeName <-Types,
                                                           {Item, ValidTypes} <- M]).
 
