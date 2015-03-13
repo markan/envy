@@ -45,8 +45,10 @@
                                 'pos_integer' |
                                 'positive_integer' |
                                 'string'.
+-type envy_type_constraints() :: envy_type_constraint() |
+                                 nonempty_list(envy_type_constraint()).
 
--spec fun_ex(envy_type_constraint() | nonempty_list(envy_type_constraint())) -> envy_type_validator().
+-spec fun_ex(envy_type_constraints()) -> envy_type_validator().
 fun_ex(any) -> fun(_) -> true end;
 fun_ex(atom) -> fun is_atom/1;
 fun_ex(binary) -> fun is_binary/1;
@@ -68,7 +70,7 @@ fun_ex(list) -> fun_ex(string);
 fun_ex(string) -> fun is_list/1;
 fun_ex(F) when is_function(F) -> F.
 
--spec get(atom(), atom(), envy_type_constraint() ) -> any().
+-spec get(atom(), atom(), envy_type_constraints() ) -> any().
 get(Section, Item, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
     case application:get_env(Section, Item) of
@@ -85,7 +87,7 @@ get(Section, Item, TypeCheck) ->
             error(config_missing_item)
     end.
 
--spec get(atom(), atom(), any(), envy_type_constraint() ) -> any().
+-spec get(atom(), atom(), any(), envy_type_constraints() ) -> any().
 get(Section, Item, Default, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
     case application:get_env(Section, Item) of
