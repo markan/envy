@@ -39,6 +39,8 @@ get_simple_test_() ->
              application:set_env(testing, invalid, {junk}),
              application:set_env(testing, nival, -1),
              application:set_env(testing, zival, 0),
+             application:set_env(testing, one_of_many, wombat),
+             application:set_env(testing, not_one_of_many, dne),
              ok
      end,
      fun(_) ->
@@ -88,7 +90,13 @@ get_simple_test_() ->
        },
       {"composite test fails if all fail",
        ?_test(?assertError(config_bad_type, envy:get(testing, nival, [pos_integer, non_neg_integer])))
-       }
+      },
+      {"envy:one_of validates against a list",
+       ?_test(?assertEqual(wombat, envy:get(testing, one_of_many, envy:one_of([wombat, turtle]))))
+      },
+      {"envy:one_of fails on item not in list",
+       ?_test(?assertError(config_bad_type, envy:get(testing, not_one_of_many, envy:one_of([wombat, turtle]))))
+      }
      ]}.
 
 
