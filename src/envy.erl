@@ -24,7 +24,8 @@
 -module(envy).
 
 -export([get/3,
-         get/4
+         get/4,
+         one_of/1
         ]).
 
 -include_lib("eunit/include/eunit.hrl").
@@ -69,6 +70,12 @@ fun_ex(List) when is_list(List) ->
 fun_ex(list) -> fun_ex(string);
 fun_ex(string) -> fun is_list/1;
 fun_ex(F) when is_function(F) -> F.
+
+-spec one_of(list()) -> function().
+one_of(List) when is_list(List) ->
+    fun(Item) ->
+            lists:member(Item, List)
+    end.
 
 -spec get(atom(), atom(), envy_type_constraints() ) -> any().
 get(Section, Item, TypeCheck) ->
