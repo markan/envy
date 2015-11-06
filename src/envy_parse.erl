@@ -55,6 +55,6 @@ host_to_ip(Section, Item) ->
     to_ip(Host, Preferences).
 
 host_to_ip(Section, Item, Default) ->
-    Host = envy:get(Section, Item, string, Default),
+    Host = envy:get(Section, Item, Default, string),
     Preferences = envy:get(Section, ip_mode, [ipv4], list),
     to_ip(Host, Preferences).
