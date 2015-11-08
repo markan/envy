@@ -21,15 +21,36 @@
 %% @copyright 2012-2013 Mark Anderson
 
 -module(envy_test).
-
 -include_lib("eunit/include/eunit.hrl").
+-define(PROPLIST, [{ival, 1}, {sval, "one"}]).
 
-
+proplist_get_simple_test_() ->
+     [{"fails for missing",
+       ?_test(?assertError(config_missing_item, envy:get(testing, no_such_value, any)))
+      },
+      {"fails for missing",
+       ?_test(?assertError(config_missing_item, envy:proplist_get(no_such_value, any, ?PROPLIST)))
+      },
+      {"integer test passes",
+       ?_test(?assertEqual(1, envy:proplist_get(ival, integer, ?PROPLIST)))
+      },
+      {"string test passes",
+       ?_test(?assertEqual("one", envy:proplist_get(sval, string, ?PROPLIST)))
+      },
+      {"integer type fails",
+       ?_test(?assertError(config_bad_type, envy:proplist_get(sval, integer, ?PROPLIST)))
+      },
+      {"default value is returned when key is not present",
+       ?_test(?assertEqual(10, envy:proplist_get(noval, integer, ?PROPLIST, 10)))
+      },
+      {"an erorr occurs when default value is returned and is not valid",
+       ?_test(?assertError(config_bad_type, envy:proplist_get(noval, integer, ?PROPLIST, "10")))
+      }
+     ].
 
 get_simple_test_() ->
     {foreach,
      fun() ->
-
              application:set_env(testing, ival, 1),
              application:set_env(testing, aval, an_atom),
              application:set_env(testing, bval, true),

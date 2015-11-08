@@ -25,6 +25,8 @@
 
 -export([get/3,
          get/4,
+         proplist_get/3,
+         proplist_get/4,
          one_of/1
         ]).
 
@@ -79,33 +81,48 @@ one_of(List) when is_list(List) ->
 
 -spec get(atom(), atom(), envy_type_constraints() ) -> any().
 get(Section, Item, TypeCheck) ->
-    TypeCheckF = fun_ex(TypeCheck),
-    case application:get_env(Section, Item) of
-        {ok, Value} ->
-            case TypeCheckF(Value) of
-                true -> Value;
-                Error ->
-                    error_logger:error_msg("Bad typecheck for config item for '~p' '~p' (~p(~p) -> ~p)~n",
-                                           [Section, Item, TypeCheck, Value, Error]),
-                    error(config_bad_type)
-            end;
-        undefined ->
-            error_logger:error_msg("Missing config item for '~p' '~p'~n", [Section, Item]),
-            error(config_missing_item)
-    end.
+    get_validate(application:get_env(Section, Item), Section, Item, TypeCheck).
 
 -spec get(atom(), atom(), any(), envy_type_constraints() ) -> any().
 get(Section, Item, Default, TypeCheck) ->
+    get_validate(application:get_env(Section, Item, Default), Section, Item, TypeCheck).
+
+
+get_validate(undefined, Section, Item, _TypeCheck) ->
+    error_logger:error_msg("Missing config item for '~p' '~p'~n", [Section, Item]),
+    error(config_missing_item);
+get_validate({ok, Value}, Section, Item, TypeCheck) ->
     TypeCheckF = fun_ex(TypeCheck),
-    case application:get_env(Section, Item) of
-        {ok, Value} ->
-            case TypeCheckF(Value) of
-                true -> Value;
-                Error ->
-                    error_logger:error_msg("Bad typecheck for config item for '~p' '~p' (~p(~p) -> ~p)~n",
-                                           [Section, Item, TypeCheck, Value, Error]),
-                    error(config_bad_type)
-            end;
-        undefined ->
-            Default
+    case TypeCheckF(Value) of
+        true -> Value;
+        Error ->
+            error_logger:error_msg("Bad typecheck for config item for '~p' '~p' (~p(~p) -> ~p)~n",
+                                   [Section, Item, TypeCheck, Value, Error]),
+            error(config_bad_type)
+    end;
+get_validate(Value, _Section, _Item, _TypeCheck) ->
+    % If a default value is returned, it won't come packaged with 'ok'.
+    Value.
+
+
+-spec proplist_get(atom(), envy_type_constraints(), list()) -> any().
+proplist_get(Key, TypeCheck, PropList) ->
+    proplist_validate(proplists:get_value(Key, PropList), Key, TypeCheck).
+
+-spec proplist_get(atom(), envy_type_constraints(), list(), any()) -> any().
+proplist_get(Key, TypeCheck, PropList, Default) ->
+    proplist_validate(proplists:get_value(Key, PropList, Default), Key, TypeCheck).
+
+proplist_validate(undefined, Key, _) ->
+    error_logger:error_msg("Missing config item for '~p'~n", [Key]),
+    error(config_missing_item);
+proplist_validate(Value, Key, TypeCheck) ->
+    TypeCheckF = fun_ex(TypeCheck),
+    case TypeCheckF(Value) of
+        true -> Value;
+        Error ->
+            error_logger:error_msg("Bad typecheck for config item for '~p' (~p(~p) -> ~p)~n",
+                                   [Key, TypeCheck, Value, Error]),
+            error(config_bad_type)
     end.
+

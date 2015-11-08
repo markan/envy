@@ -25,7 +25,8 @@
 
 -export([to_ip/2,
          host_to_ip/2,
-         host_to_ip/3
+         host_to_ip/3,
+         parse_host_to_ip/2
         ]).
 
 -type envy_ip_preference() :: 'ipv4' | 'ipv6'.
@@ -46,6 +47,13 @@ maybe_parse({error, Error}, Host, _Preferences) ->
     erlang:error({Error, Host});
 maybe_parse({ok, IP}, _Host, _Preferences) ->
     IP.
+
+
+%% Section is used only to get the ip_mode rules.
+parse_host_to_ip(Section, HostString) ->
+    Preferences = envy:get(Section, ip_mode, [ipv4], list),
+    to_ip(HostString, Preferences).
+
 
 %% These functions look for a string typed key under Section, Item, and parses it down to
 %% an ipv4/ipv6 address based on a preferences string kept in Section, 'ip_mode'
