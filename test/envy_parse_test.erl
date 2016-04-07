@@ -58,6 +58,10 @@ parse_to_ip_simple_test_() ->
 host_to_ip_default_value_test() ->
     ?assertEqual({127,0,0,1}, envy_parse:host_to_ip(bad_section, bad_key, "127.0.0.1")).
 
+parse_host_to_ip_test() ->
+    application:set_env(app_key, ip_mode, [ipv4]),
+    ?assertEqual({127,0,0,1}, envy_parse:parse_host_to_ip(app_key, "127.0.0.1")).
+
 host_to_ip_simple_test_() ->
     {foreach,
      fun() ->
