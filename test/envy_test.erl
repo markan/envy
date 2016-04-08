@@ -117,7 +117,10 @@ get_simple_test_() ->
       },
       {"envy:one_of fails on item not in list",
        ?_test(?assertError(config_bad_type, envy:get(testing, not_one_of_many, envy:one_of([wombat, turtle]))))
-      }
+      },
+      {"undefined allowed as default value",
+       ?_test(?assertEqual(undefined, envy:get(testing, does_not_exist, undefined, integer)))
+     }
      ]}.
 
 
