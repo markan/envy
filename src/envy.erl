@@ -85,8 +85,12 @@ get(Section, Item, TypeCheck) ->
 
 -spec get(atom(), atom(), any(), envy_type_constraints() ) -> any().
 get(Section, Item, Default, TypeCheck) ->
-    get_validate(application:get_env(Section, Item, Default), Section, Item, TypeCheck).
-
+    case application:get_env(Section, Item) of
+        {ok, Value} ->
+            get_validate({ok, Value}, Section, Item, TypeCheck);
+        undefined ->
+            Default
+    end.
 
 get_validate(undefined, Section, Item, _TypeCheck) ->
     error_logger:error_msg("Missing config item for '~p' '~p'~n", [Section, Item]),
@@ -99,11 +103,7 @@ get_validate({ok, Value}, Section, Item, TypeCheck) ->
             error_logger:error_msg("Bad typecheck for config item for '~p' '~p' (~p(~p) -> ~p)~n",
                                    [Section, Item, TypeCheck, Value, Error]),
             error(config_bad_type)
-    end;
-get_validate(Value, _Section, _Item, _TypeCheck) ->
-    % If a default value is returned, it won't come packaged with 'ok'.
-    Value.
-
+    end.
 
 -spec proplist_get(atom(), envy_type_constraints(), list()) -> any().
 proplist_get(Key, TypeCheck, PropList) ->
@@ -125,4 +125,3 @@ proplist_validate(Value, Key, TypeCheck) ->
                                    [Key, TypeCheck, Value, Error]),
             error(config_bad_type)
     end.
-
